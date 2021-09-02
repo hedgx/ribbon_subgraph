@@ -313,13 +313,21 @@ export class VaultShortPosition extends Entity {
     }
   }
 
-  get premiumEarned(): BigInt {
+  get premiumEarned(): BigInt | null {
     let value = this.get("premiumEarned");
-    return value.toBigInt();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
   }
 
-  set premiumEarned(value: BigInt) {
-    this.set("premiumEarned", Value.fromBigInt(value));
+  set premiumEarned(value: BigInt | null) {
+    if (value === null) {
+      this.unset("premiumEarned");
+    } else {
+      this.set("premiumEarned", Value.fromBigInt(value as BigInt));
+    }
   }
 
   get openTxhash(): Bytes {

@@ -28,7 +28,7 @@ type VaultShortPosition @entity {
   expiry: BigInt!
   openedAt: BigInt!
   closedAt: BigInt
-  premiumEarned: BigInt!
+  premiumEarned: BigInt
   openTxhash: Bytes!
   closeTxhash: Bytes
   trades: [VaultOptionTrade!]! @derivedFrom(field: "vaultShortPosition")

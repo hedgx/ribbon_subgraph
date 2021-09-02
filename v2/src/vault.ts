@@ -30,19 +30,19 @@ import { getOtokenMintAmount } from "./utils";
 
 function newVault(vaultAddress: string): Vault {
   let vault = new Vault(vaultAddress);
-  let optionsVaultContract = RibbonThetaVault.bind(
+  let vaultContract = RibbonThetaVault.bind(
     Address.fromString(vaultAddress)
   );
-  let underlyingAddress = optionsVaultContract.vaultParams().value3;
+  let underlyingAddress = vaultContract.vaultParams().value3;
   let otoken = Otoken.bind(underlyingAddress);
 
-  vault.name = optionsVaultContract.name();
-  vault.symbol = optionsVaultContract.symbol();
+  vault.name = vaultContract.name();
+  vault.symbol = vaultContract.symbol();
   vault.numDepositors = 0;
   vault.depositors = [];
   vault.totalPremiumEarned = BigInt.fromI32(0);
-  vault.cap = optionsVaultContract.cap();
-  vault.totalBalance = optionsVaultContract.totalBalance();
+  vault.cap = vaultContract.cap();
+  vault.totalBalance = vaultContract.totalBalance();
   vault.underlyingAsset = underlyingAddress;
   vault.underlyingName = otoken.name();
   vault.underlyingSymbol = otoken.symbol();
@@ -76,18 +76,24 @@ export function handleOpenShort(event: OpenShort): void {
   );
   shortPosition.initiatedBy = event.params.manager;
   shortPosition.openedAt = event.block.timestamp;
-  shortPosition.premiumEarned = BigInt.fromI32(0);
   shortPosition.openTxhash = event.transaction.hash;
 
   shortPosition.save();
 }
 
 export function handleCloseShort(event: CloseShort): void {
-  let vaultAddress = event.address;
+  let vaultAddress = event.address.toHexString();
+
   let shortPosition = VaultShortPosition.load(
     event.params.options.toHexString()
   );
   if (shortPosition != null) {
+    let vault = Vault.load(vaultAddress);
+    if (vault == null) {
+      vault = newVault(vaultAddress);
+      vault.save();
+    }
+
     let loss = shortPosition.depositAmount - event.params.withdrawAmount;
     shortPosition.loss = loss;
     shortPosition.withdrawAmount = event.params.withdrawAmount;
@@ -96,7 +102,7 @@ export function handleCloseShort(event: CloseShort): void {
     shortPosition.closeTxhash = event.transaction.hash;
     shortPosition.save();
 
-    refreshAllAccountBalances(vaultAddress, event.block.timestamp.toI32());
+    refreshAllAccountBalances(Address.fromString(vaultAddress), event.block.timestamp.toI32());
   }
 }
 
@@ -254,18 +260,16 @@ export function handleTransfer(event: Transfer): void {
     event.params.from.toHexString() ==
       "0x0000000000000000000000000000000000000000" ||
     event.params.to.toHexString() ==
-      "0x0000000000000000000000000000000000000000"
+      "0x0000000000000000000000000000000000000000" ||
+    event.params.from.toHexString() ==
+      event.address.toHexString() ||
+    event.params.to.toHexString() ==
+      event.address.toHexString()
   ) {
     return;
   }
 
   let type = "transfer";
-
-  if (isMiningPool(event.params.to)) {
-    type = "stake";
-  } else if (isMiningPool(event.params.from)) {
-    type = "unstake";
-  }
 
   let vaultAddress = event.address.toHexString();
   let txid =
@@ -289,25 +293,18 @@ export function handleTransfer(event: Transfer): void {
    * Record sender deposit/withdraw amount
    */
   let senderVaultAccount = createVaultAccount(event.address, event.params.from);
-  switch (type as u32) {
-    case "stake" as u32:
-      senderVaultAccount.totalStakedShares =
-        senderVaultAccount.totalStakedShares + event.params.value;
-      break;
-    default:
-      senderVaultAccount.totalDeposits =
-        senderVaultAccount.totalDeposits - underlyingAmount;
-  }
+  senderVaultAccount.totalDeposits =
+    senderVaultAccount.totalDeposits - underlyingAmount;
   senderVaultAccount.save();
 
   newTransaction(
     txid + "-T", // Indicate transfer
-    type == "stake" ? "stake" : "transfer",
+    "transfer",
     vaultAddress,
     event.params.from,
     event.transaction.hash,
     event.block.timestamp,
-    type == "stake" ? event.params.value : underlyingAmount,
+    underlyingAmount,
     underlyingAmount,
   );
 
@@ -315,25 +312,18 @@ export function handleTransfer(event: Transfer): void {
    * Record receiver deposit/withdraw amount
    */
   let receiverVaultAccount = createVaultAccount(event.address, event.params.to);
-  switch (type as u32) {
-    case "unstake" as u32:
-      receiverVaultAccount.totalStakedShares =
-        receiverVaultAccount.totalStakedShares - event.params.value;
-      break;
-    default:
-      receiverVaultAccount.totalDeposits =
-        receiverVaultAccount.totalDeposits + underlyingAmount;
-  }
+  receiverVaultAccount.totalDeposits =
+    receiverVaultAccount.totalDeposits + underlyingAmount;
   receiverVaultAccount.save();
 
   newTransaction(
     txid + "-R", // Indicate receive
-    type == "unstake" ? "unstake" : "receive",
+    "receive",
     vaultAddress,
     event.params.to,
     event.transaction.hash,
     event.block.timestamp,
-    type == "unstake" ? event.params.value : underlyingAmount,
+    underlyingAmount,
     underlyingAmount,
   );
 
