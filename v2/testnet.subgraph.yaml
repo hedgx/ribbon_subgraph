@@ -6,7 +6,7 @@ dataSources:
     name: RibbonETHCoveredCall
     network: kovan
     source:
-      address: "0x6888cEaae27F1D66C4152082c186ed452E387FBB"
+      address: "0xF77FE1e54bc308C88CBacf3670EB54ce4A41226E"
       abi: RibbonThetaVault
       startBlock: 26920346
     mapping:
@@ -43,7 +43,7 @@ dataSources:
     name: RibbonWBTCCoveredCall
     network: kovan
     source:
-      address: "0xa6C65B92E24C72D5935396532c2536f0ca30654f"
+      address: "0xD7aa207b2b37499E7F82cf1316B312540A548d56"
       abi: RibbonThetaVault
       startBlock: 26920346
     mapping:

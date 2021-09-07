@@ -3,12 +3,15 @@
   "version": "0.1.0",
   "scripts": {
     "build-contract": "solc contracts/Gravity.sol --abi -o abis --overwrite && solc contracts/Gravity.sol --bin -o bin --overwrite",
-    "create": "graph create gadget212/v2 --node https://api.thegraph.com/deploy/",
-    "create-local": "graph create gadget212/v2 --node http://127.0.0.1:8020",
+    "create": "graph create ribbon-finance/ribbon-finance-v2 --node https://api.thegraph.com/deploy/",
+    "create-local": "graph create ribbon-finance/ribbon-finance-v2 --node http://127.0.0.1:8020",
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy gadget212/v2 --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
-    "deploy-local": "graph deploy gadget212/v2 --ipfs http://localhost:5001 --node http://127.0.0.1:8020"
+    "codegen-testnet": "graph codegen testnet.subgraph.yaml",
+    "build-testnet": "graph build testnet.subgraph.yaml",
+    "deploy": "graph deploy ribbon-finance/ribbon-finance-v2 --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
+    "deploy-local": "graph deploy ribbon-finance/ribbon-finance-v2 --ipfs http://localhost:5001 --node http://127.0.0.1:8020",
+    "deploy-testnet": "graph deploy ribbon-finance/ribbon-finance-v2-kovan --ipfs http://localhost:5001 --node http://127.0.0.1:8020"
   },
   "devDependencies": {
     "@graphprotocol/graph-cli": "^0.20.1",
