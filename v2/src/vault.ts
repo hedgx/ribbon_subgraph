@@ -23,7 +23,7 @@ import {
   refreshAllAccountBalances,
   triggerBalanceUpdate
 } from "./accounts";
-import { getOtokenMintAmount } from "./utils";
+import { getOtokenMintAmount, getPricePerShare, sharesToAssets } from "./utils";
 
 function newVault(vaultAddress: string): Vault {
   let vault = new Vault(vaultAddress);
@@ -207,141 +207,144 @@ export function handleDeposit(event: Deposit): void {
   );
 }
 
-// export function handleWithdraw(event: Withdraw): void {
-//   let vaultAddress = event.address.toHexString();
-//   let vault = Vault.load(vaultAddress);
+export function handleWithdraw(event: Withdraw): void {
+  let vaultAddress = event.address.toHexString();
+  let vault = Vault.load(vaultAddress);
 
-//   if (vault == null) {
-//     vault = newVault(vaultAddress);
-//     vault.save();
-//   }
+  if (vault == null) {
+    vault = newVault(vaultAddress);
+    vault.save();
+  }
 
-//   let vaultAccount = createVaultAccount(event.address, event.params.account);
-//   vaultAccount.totalDeposits = vaultAccount.totalDeposits - event.params.amount;
-//   vaultAccount.save();
+  let vaultAccount = createVaultAccount(event.address, event.params.account);
+  vaultAccount.totalDeposits = vaultAccount.totalDeposits - event.params.amount;
+  vaultAccount.save();
 
-//   let txid =
-//     vaultAddress +
-//     "-" +
-//     event.transaction.hash.toHexString() +
-//     "-" +
-//     event.transactionLogIndex.toString();
+  let txid =
+    vaultAddress +
+    "-" +
+    event.transaction.hash.toHexString() +
+    "-" +
+    event.transactionLogIndex.toString();
 
-//   newTransaction(
-//     txid,
-//     "withdraw",
-//     vaultAddress,
-//     event.params.account,
-//     event.transaction.hash,
-//     event.block.timestamp,
-//     event.params.amount,
-//     event.params.amount
-//   );
+  newTransaction(
+    txid,
+    "withdraw",
+    vaultAddress,
+    event.params.account,
+    event.transaction.hash,
+    event.block.timestamp,
+    event.params.amount,
+    event.params.amount
+  );
 
-//   triggerBalanceUpdate(
-//     event.address,
-//     event.params.account,
-//     event.block.timestamp.toI32(),
-//     false,
-//     true
-//   );
-// }
+  triggerBalanceUpdate(
+    event.address,
+    event.params.account,
+    event.block.timestamp.toI32(),
+    false,
+    true
+  );
+}
 
-// /**
-//  * We have two types of transfer
-//  *
-//  * Liquidity Mining
-//  * In liquidity mining, we keep track of the amount as shares, and underlying as actual underlying amount
-//  *
-//  * Normal transfer
-//  * We will store both underlying and amount as asset amount. In this case, the user transfer "underlying" instead of shares.
-//  */
-// export function handleTransfer(event: Transfer): void {
-//   // Just skip if it's a new deposit or withdrawal
-//   if (
-//     event.params.from.toHexString() ==
-//       "0x0000000000000000000000000000000000000000" ||
-//     event.params.to.toHexString() ==
-//       "0x0000000000000000000000000000000000000000" ||
-//     event.params.from.toHexString() == event.address.toHexString() ||
-//     event.params.to.toHexString() == event.address.toHexString()
-//   ) {
-//     return;
-//   }
+/**
+ * We have two types of transfer
+ *
+ * Liquidity Mining
+ * In liquidity mining, we keep track of the amount as shares, and underlying as actual underlying amount
+ *
+ * Normal transfer
+ * We will store both underlying and amount as asset amount. In this case, the user transfer "underlying" instead of shares.
+ */
+export function handleTransfer(event: Transfer): void {
+  // Just skip if it's a new deposit or withdrawal
+  if (
+    event.params.from.toHexString() ==
+      "0x0000000000000000000000000000000000000000" ||
+    event.params.to.toHexString() ==
+      "0x0000000000000000000000000000000000000000" ||
+    event.params.from.toHexString() == event.address.toHexString() ||
+    event.params.to.toHexString() == event.address.toHexString()
+  ) {
+    return;
+  }
 
-//   let type = "transfer";
+  let vaultAddress = event.address.toHexString();
+  let vault = Vault.load(vaultAddress);
+  let txid =
+    vaultAddress +
+    "-" +
+    event.transaction.hash.toHexString() +
+    "-" +
+    event.transactionLogIndex.toString();
 
-//   let vaultAddress = event.address.toHexString();
-//   let txid =
-//     vaultAddress +
-//     "-" +
-//     event.transaction.hash.toHexString() +
-//     "-" +
-//     event.transactionLogIndex.toString();
+  /**
+   * Calculate underlying amount
+   * Staking: To be able to calculate USD value that had been staked
+   * Transfer: Transfer are always in the unit of underlying
+   */
+  let vaultContract = RibbonThetaVault.bind(event.address);
 
-//   /**
-//    * Calculate underlying amount
-//    * Staking: To be able to calculate USD value that had been staked
-//    * Transfer: Transfer are always in the unit of underlying
-//    */
-//   let vaultContract = RibbonThetaVault.bind(event.address);
-//   let underlyingAmount =
-//     (event.params.value * vaultContract.totalBalance()) /
-//     vaultContract.totalSupply();
+  let decimals = vault.underlyingDecimals;
+  let underlyingAmount = sharesToAssets(
+    event.params.value,
+    getPricePerShare(vaultContract, decimals),
+    decimals
+  );
 
-//   /**
-//    * Record sender deposit/withdraw amount
-//    */
-//   let senderVaultAccount = createVaultAccount(event.address, event.params.from);
-//   senderVaultAccount.totalDeposits =
-//     senderVaultAccount.totalDeposits - underlyingAmount;
-//   senderVaultAccount.save();
+  /**
+   * Record sender deposit/withdraw amount
+   */
+  let senderVaultAccount = createVaultAccount(event.address, event.params.from);
+  senderVaultAccount.totalDeposits =
+    senderVaultAccount.totalDeposits - underlyingAmount;
+  senderVaultAccount.save();
 
-//   newTransaction(
-//     txid + "-T", // Indicate transfer
-//     "transfer",
-//     vaultAddress,
-//     event.params.from,
-//     event.transaction.hash,
-//     event.block.timestamp,
-//     underlyingAmount,
-//     underlyingAmount
-//   );
+  newTransaction(
+    txid + "-T", // Indicate transfer
+    "transfer",
+    vaultAddress,
+    event.params.from,
+    event.transaction.hash,
+    event.block.timestamp,
+    underlyingAmount,
+    underlyingAmount
+  );
 
-//   /**
-//    * Record receiver deposit/withdraw amount
-//    */
-//   let receiverVaultAccount = createVaultAccount(event.address, event.params.to);
-//   receiverVaultAccount.totalDeposits =
-//     receiverVaultAccount.totalDeposits + underlyingAmount;
-//   receiverVaultAccount.save();
+  /**
+   * Record receiver deposit/withdraw amount
+   */
+  let receiverVaultAccount = createVaultAccount(event.address, event.params.to);
+  receiverVaultAccount.totalDeposits =
+    receiverVaultAccount.totalDeposits + underlyingAmount;
+  receiverVaultAccount.save();
 
-//   newTransaction(
-//     txid + "-R", // Indicate receive
-//     "receive",
-//     vaultAddress,
-//     event.params.to,
-//     event.transaction.hash,
-//     event.block.timestamp,
-//     underlyingAmount,
-//     underlyingAmount
-//   );
+  newTransaction(
+    txid + "-R", // Indicate receive
+    "receive",
+    vaultAddress,
+    event.params.to,
+    event.transaction.hash,
+    event.block.timestamp,
+    underlyingAmount,
+    underlyingAmount
+  );
 
-//   triggerBalanceUpdate(
-//     event.address,
-//     event.params.from,
-//     event.block.timestamp.toI32(),
-//     false,
-//     true
-//   );
-//   triggerBalanceUpdate(
-//     event.address,
-//     event.params.to,
-//     event.block.timestamp.toI32(),
-//     false,
-//     false
-//   );
-// }
+  triggerBalanceUpdate(
+    event.address,
+    event.params.from,
+    event.block.timestamp.toI32(),
+    false,
+    true
+  );
+  triggerBalanceUpdate(
+    event.address,
+    event.params.to,
+    event.block.timestamp.toI32(),
+    false,
+    false
+  );
+}
 
 function newTransaction(
   txid: string,
