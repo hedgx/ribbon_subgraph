@@ -5,8 +5,9 @@ import {
   ERC20Token,
   ERC20TokenAccount,
   Vault,
-  VaultAccount,
+  VaultAccount
 } from "../generated/schema";
+import { getPricePerShare, sharesToAssets } from "./utils";
 
 export function refreshAllAccountBalances(
   vaultAddress: Address,
@@ -14,8 +15,9 @@ export function refreshAllAccountBalances(
 ): void {
   let vault = Vault.load(vaultAddress.toHexString());
   let vaultContract = RibbonThetaVault.bind(vaultAddress);
+  let decimals = vault.underlyingDecimals;
+  let assetPerShare = getPricePerShare(vaultContract, decimals);
   let totalBalance = vaultContract.totalBalance();
-  let totalSupply = vaultContract.totalSupply();
   vault.totalBalance = totalBalance;
   vault.save();
 
@@ -31,8 +33,8 @@ export function refreshAllAccountBalances(
           true,
           false,
           false,
-          totalBalance,
-          totalSupply
+          assetPerShare,
+          decimals
         );
       }
     }
@@ -48,8 +50,9 @@ export function triggerBalanceUpdate(
 ): void {
   let vault = Vault.load(vaultAddress.toHexString());
   let vaultContract = RibbonThetaVault.bind(vaultAddress);
+  let decimals = vault.underlyingDecimals;
+  let assetPerShare = getPricePerShare(vaultContract, decimals);
   let totalBalance = vaultContract.totalBalance();
-  let totalSupply = vaultContract.totalSupply();
   vault.totalBalance = totalBalance;
   vault.save();
 
@@ -60,8 +63,8 @@ export function triggerBalanceUpdate(
     accruesYield,
     isWithdraw,
     true,
-    totalBalance,
-    totalSupply
+    assetPerShare,
+    decimals
   );
 }
 
@@ -72,8 +75,8 @@ export function _triggerBalanceUpdate(
   accruesYield: bool,
   isWithdraw: bool,
   isRefresh: bool,
-  totalBalance: BigInt,
-  totalSupply: BigInt
+  assetPerShare: BigInt,
+  decimals: number
 ): void {
   let vaultID = vaultAddress.toHexString();
   let vaultContract = RibbonThetaVault.bind(vaultAddress);
@@ -101,15 +104,15 @@ export function _triggerBalanceUpdate(
    * Otherwise, in the case where there is no movement in shares, we will merely get back the sahres from vaultAccount
    */
   if (isRefresh) {
-    let balanceCallResult = vaultContract.try_balanceOf(accountAddress);
-    if (balanceCallResult.reverted) {
-      log.error("calling balanceOf({}) on vault {}", [
+    let sharesCallResult = vaultContract.try_shares(accountAddress);
+    if (sharesCallResult.reverted) {
+      log.error("calling shares({}) on vault {}", [
         accountAddress.toHexString(),
         vaultAddress.toHexString()
       ]);
       return;
     }
-    shares = balanceCallResult.value;
+    shares = sharesCallResult.value;
   } else {
     shares = vaultAccount.shares;
   }
@@ -117,9 +120,12 @@ export function _triggerBalanceUpdate(
   /**
    * Calculate new account balance based on shares
    */
-  let accountBalance = (shares * totalBalance) / totalSupply;
-  let stakeBalance =
-    (vaultAccount.totalStakedShares * totalBalance) / totalSupply;
+  let accountBalance = sharesToAssets(shares, assetPerShare, decimals);
+  let stakeBalance = sharesToAssets(
+    vaultAccount.totalStakedShares,
+    assetPerShare,
+    decimals
+  );
   let balance = accountBalance + stakeBalance;
 
   let update = new BalanceUpdate(updateID);
