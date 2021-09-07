@@ -9,7 +9,7 @@
     "deploy": "graph deploy ribbon-finance/ribbon-v2 --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
     "codegen-testnet": "graph codegen testnet.subgraph.yaml",
     "build-testnet": "graph build testnet.subgraph.yaml",
-    "deploy-testnet": "graph deploy ribbon-finance/ribbon-v2-kovan --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
+    "deploy-testnet": "graph deploy ribbon-finance/ribbon-v2-kovan --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ testnet.subgraph.yaml",
     "deploy-local": "graph deploy ribbon-finance/ribbon-v2 --ipfs http://localhost:5001 --node http://127.0.0.1:8020"
   },
   "devDependencies": {

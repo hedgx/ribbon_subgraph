@@ -58,32 +58,6 @@ export class AuctionDurationSet__Params {
   }
 }
 
-export class CapSet extends ethereum.Event {
-  get params(): CapSet__Params {
-    return new CapSet__Params(this);
-  }
-}
-
-export class CapSet__Params {
-  _event: CapSet;
-
-  constructor(event: CapSet) {
-    this._event = event;
-  }
-
-  get oldCap(): BigInt {
-    return this._event.parameters[0].value.toBigInt();
-  }
-
-  get newCap(): BigInt {
-    return this._event.parameters[1].value.toBigInt();
-  }
-
-  get manager(): Address {
-    return this._event.parameters[2].value.toAddress();
-  }
-}
-
 export class CloseShort extends ethereum.Event {
   get params(): CloseShort__Params {
     return new CloseShort__Params(this);
@@ -157,8 +131,8 @@ export class Deposit__Params {
     return this._event.parameters[1].value.toBigInt();
   }
 
-  get round(): i32 {
-    return this._event.parameters[2].value.toI32();
+  get round(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
   }
 }
 
@@ -213,8 +187,8 @@ export class InitiateWithdraw__Params {
     return this._event.parameters[1].value.toBigInt();
   }
 
-  get round(): i32 {
-    return this._event.parameters[2].value.toI32();
+  get round(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
   }
 }
 
@@ -239,30 +213,8 @@ export class InstantWithdraw__Params {
     return this._event.parameters[1].value.toBigInt();
   }
 
-  get round(): i32 {
-    return this._event.parameters[2].value.toI32();
-  }
-}
-
-export class ManagementFeeSet extends ethereum.Event {
-  get params(): ManagementFeeSet__Params {
-    return new ManagementFeeSet__Params(this);
-  }
-}
-
-export class ManagementFeeSet__Params {
-  _event: ManagementFeeSet;
-
-  constructor(event: ManagementFeeSet) {
-    this._event = event;
-  }
-
-  get managementFee(): BigInt {
-    return this._event.parameters[0].value.toBigInt();
-  }
-
-  get newManagementFee(): BigInt {
-    return this._event.parameters[1].value.toBigInt();
+  get round(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
   }
 }
 
@@ -336,28 +288,6 @@ export class OwnershipTransferred__Params {
   }
 }
 
-export class PerformanceFeeSet extends ethereum.Event {
-  get params(): PerformanceFeeSet__Params {
-    return new PerformanceFeeSet__Params(this);
-  }
-}
-
-export class PerformanceFeeSet__Params {
-  _event: PerformanceFeeSet;
-
-  constructor(event: PerformanceFeeSet) {
-    this._event = event;
-  }
-
-  get performanceFee(): BigInt {
-    return this._event.parameters[0].value.toBigInt();
-  }
-
-  get newPerformanceFee(): BigInt {
-    return this._event.parameters[1].value.toBigInt();
-  }
-}
-
 export class PremiumDiscountSet extends ethereum.Event {
   get params(): PremiumDiscountSet__Params {
     return new PremiumDiscountSet__Params(this);
@@ -401,8 +331,8 @@ export class Redeem__Params {
     return this._event.parameters[1].value.toBigInt();
   }
 
-  get round(): i32 {
-    return this._event.parameters[2].value.toI32();
+  get round(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
   }
 }
 
@@ -458,50 +388,25 @@ export class Withdraw__Params {
   }
 }
 
-export class WithdrawalFeeSet extends ethereum.Event {
-  get params(): WithdrawalFeeSet__Params {
-    return new WithdrawalFeeSet__Params(this);
-  }
-}
-
-export class WithdrawalFeeSet__Params {
-  _event: WithdrawalFeeSet;
-
-  constructor(event: WithdrawalFeeSet) {
-    this._event = event;
-  }
-
-  get oldFee(): BigInt {
-    return this._event.parameters[0].value.toBigInt();
-  }
-
-  get newFee(): BigInt {
-    return this._event.parameters[1].value.toBigInt();
-  }
-}
-
 export class RibbonThetaVault__depositReceiptsResult {
-  value0: boolean;
-  value1: i32;
+  value0: i32;
+  value1: BigInt;
   value2: BigInt;
-  value3: BigInt;
 
-  constructor(value0: boolean, value1: i32, value2: BigInt, value3: BigInt) {
+  constructor(value0: i32, value1: BigInt, value2: BigInt) {
     this.value0 = value0;
     this.value1 = value1;
     this.value2 = value2;
-    this.value3 = value3;
   }
 
   toMap(): TypedMap<string, ethereum.Value> {
     let map = new TypedMap<string, ethereum.Value>();
-    map.set("value0", ethereum.Value.fromBoolean(this.value0));
     map.set(
-      "value1",
-      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(this.value1))
+      "value0",
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(this.value0))
     );
+    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
     map.set("value2", ethereum.Value.fromUnsignedBigInt(this.value2));
-    map.set("value3", ethereum.Value.fromUnsignedBigInt(this.value3));
     return map;
   }
 }
@@ -550,7 +455,6 @@ export class RibbonThetaVault__vaultParamsResult {
   value3: Address;
   value4: BigInt;
   value5: BigInt;
-  value6: BigInt;
 
   constructor(
     value0: boolean,
@@ -558,8 +462,7 @@ export class RibbonThetaVault__vaultParamsResult {
     value2: Address,
     value3: Address,
     value4: BigInt,
-    value5: BigInt,
-    value6: BigInt
+    value5: BigInt
   ) {
     this.value0 = value0;
     this.value1 = value1;
@@ -567,7 +470,6 @@ export class RibbonThetaVault__vaultParamsResult {
     this.value3 = value3;
     this.value4 = value4;
     this.value5 = value5;
-    this.value6 = value6;
   }
 
   toMap(): TypedMap<string, ethereum.Value> {
@@ -581,7 +483,6 @@ export class RibbonThetaVault__vaultParamsResult {
     map.set("value3", ethereum.Value.fromAddress(this.value3));
     map.set("value4", ethereum.Value.fromUnsignedBigInt(this.value4));
     map.set("value5", ethereum.Value.fromUnsignedBigInt(this.value5));
-    map.set("value6", ethereum.Value.fromUnsignedBigInt(this.value6));
     return map;
   }
 }
@@ -622,24 +523,21 @@ export class RibbonThetaVault__vaultStateResult {
 }
 
 export class RibbonThetaVault__withdrawalsResult {
-  value0: boolean;
-  value1: i32;
-  value2: BigInt;
+  value0: i32;
+  value1: BigInt;
 
-  constructor(value0: boolean, value1: i32, value2: BigInt) {
+  constructor(value0: i32, value1: BigInt) {
     this.value0 = value0;
     this.value1 = value1;
-    this.value2 = value2;
   }
 
   toMap(): TypedMap<string, ethereum.Value> {
     let map = new TypedMap<string, ethereum.Value>();
-    map.set("value0", ethereum.Value.fromBoolean(this.value0));
     map.set(
-      "value1",
-      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(this.value1))
+      "value0",
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(this.value0))
     );
-    map.set("value2", ethereum.Value.fromUnsignedBigInt(this.value2));
+    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
     return map;
   }
 }
@@ -990,15 +888,14 @@ export class RibbonThetaVault extends ethereum.SmartContract {
   depositReceipts(param0: Address): RibbonThetaVault__depositReceiptsResult {
     let result = super.call(
       "depositReceipts",
-      "depositReceipts(address):(bool,uint16,uint104,uint128)",
+      "depositReceipts(address):(uint16,uint104,uint128)",
       [ethereum.Value.fromAddress(param0)]
     );
 
     return new RibbonThetaVault__depositReceiptsResult(
-      result[0].toBoolean(),
-      result[1].toI32(),
-      result[2].toBigInt(),
-      result[3].toBigInt()
+      result[0].toI32(),
+      result[1].toBigInt(),
+      result[2].toBigInt()
     );
   }
 
@@ -1007,7 +904,7 @@ export class RibbonThetaVault extends ethereum.SmartContract {
   ): ethereum.CallResult<RibbonThetaVault__depositReceiptsResult> {
     let result = super.tryCall(
       "depositReceipts",
-      "depositReceipts(address):(bool,uint16,uint104,uint128)",
+      "depositReceipts(address):(uint16,uint104,uint128)",
       [ethereum.Value.fromAddress(param0)]
     );
     if (result.reverted) {
@@ -1016,10 +913,9 @@ export class RibbonThetaVault extends ethereum.SmartContract {
     let value = result.value;
     return ethereum.CallResult.fromValue(
       new RibbonThetaVault__depositReceiptsResult(
-        value[0].toBoolean(),
-        value[1].toI32(),
-        value[2].toBigInt(),
-        value[3].toBigInt()
+        value[0].toI32(),
+        value[1].toBigInt(),
+        value[2].toBigInt()
       )
     );
   }
@@ -1302,21 +1198,6 @@ export class RibbonThetaVault extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
-  period(): BigInt {
-    let result = super.call("period", "period():(uint256)", []);
-
-    return result[0].toBigInt();
-  }
-
-  try_period(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall("period", "period():(uint256)", []);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
   premiumDiscount(): BigInt {
     let result = super.call(
       "premiumDiscount",
@@ -1374,29 +1255,6 @@ export class RibbonThetaVault extends ethereum.SmartContract {
       "roundPricePerShare",
       "roundPricePerShare(uint16):(uint256)",
       [ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(param0))]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  scheduledWithdrawals(param0: Address): BigInt {
-    let result = super.call(
-      "scheduledWithdrawals",
-      "scheduledWithdrawals(address):(uint256)",
-      [ethereum.Value.fromAddress(param0)]
-    );
-
-    return result[0].toBigInt();
-  }
-
-  try_scheduledWithdrawals(param0: Address): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "scheduledWithdrawals",
-      "scheduledWithdrawals(address):(uint256)",
-      [ethereum.Value.fromAddress(param0)]
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -1602,7 +1460,7 @@ export class RibbonThetaVault extends ethereum.SmartContract {
   vaultParams(): RibbonThetaVault__vaultParamsResult {
     let result = super.call(
       "vaultParams",
-      "vaultParams():(bool,uint8,address,address,uint56,uint104,uint256)",
+      "vaultParams():(bool,uint8,address,address,uint56,uint104)",
       []
     );
 
@@ -1612,15 +1470,14 @@ export class RibbonThetaVault extends ethereum.SmartContract {
       result[2].toAddress(),
       result[3].toAddress(),
       result[4].toBigInt(),
-      result[5].toBigInt(),
-      result[6].toBigInt()
+      result[5].toBigInt()
     );
   }
 
   try_vaultParams(): ethereum.CallResult<RibbonThetaVault__vaultParamsResult> {
     let result = super.tryCall(
       "vaultParams",
-      "vaultParams():(bool,uint8,address,address,uint56,uint104,uint256)",
+      "vaultParams():(bool,uint8,address,address,uint56,uint104)",
       []
     );
     if (result.reverted) {
@@ -1634,8 +1491,7 @@ export class RibbonThetaVault extends ethereum.SmartContract {
         value[2].toAddress(),
         value[3].toAddress(),
         value[4].toBigInt(),
-        value[5].toBigInt(),
-        value[6].toBigInt()
+        value[5].toBigInt()
       )
     );
   }
@@ -1680,14 +1536,13 @@ export class RibbonThetaVault extends ethereum.SmartContract {
   withdrawals(param0: Address): RibbonThetaVault__withdrawalsResult {
     let result = super.call(
       "withdrawals",
-      "withdrawals(address):(bool,uint16,uint128)",
+      "withdrawals(address):(uint16,uint128)",
       [ethereum.Value.fromAddress(param0)]
     );
 
     return new RibbonThetaVault__withdrawalsResult(
-      result[0].toBoolean(),
-      result[1].toI32(),
-      result[2].toBigInt()
+      result[0].toI32(),
+      result[1].toBigInt()
     );
   }
 
@@ -1696,7 +1551,7 @@ export class RibbonThetaVault extends ethereum.SmartContract {
   ): ethereum.CallResult<RibbonThetaVault__withdrawalsResult> {
     let result = super.tryCall(
       "withdrawals",
-      "withdrawals(address):(bool,uint16,uint128)",
+      "withdrawals(address):(uint16,uint128)",
       [ethereum.Value.fromAddress(param0)]
     );
     if (result.reverted) {
@@ -1705,9 +1560,8 @@ export class RibbonThetaVault extends ethereum.SmartContract {
     let value = result.value;
     return ethereum.CallResult.fromValue(
       new RibbonThetaVault__withdrawalsResult(
-        value[0].toBoolean(),
-        value[1].toI32(),
-        value[2].toBigInt()
+        value[0].toI32(),
+        value[1].toBigInt()
       )
     );
   }
@@ -2168,10 +2022,6 @@ export class InitializeCall_vaultParamsStruct extends ethereum.Tuple {
 
   get cap(): BigInt {
     return this[5].toBigInt();
-  }
-
-  get initialSharePrice(): BigInt {
-    return this[6].toBigInt();
   }
 }
 
