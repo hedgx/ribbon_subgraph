@@ -8,7 +8,7 @@ dataSources:
     source:
       address: "0xF77FE1e54bc308C88CBacf3670EB54ce4A41226E"
       abi: RibbonThetaVault
-      startBlock: 26920346
+      startBlock: 26690560
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -45,44 +45,7 @@ dataSources:
     source:
       address: "0xD7aa207b2b37499E7F82cf1316B312540A548d56"
       abi: RibbonThetaVault
-      startBlock: 26920346
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      file: ./src/vault.ts
-      entities:
-        - Vault
-        - VaultShortPosition
-        - VaultAccount
-        - BalanceUpdate
-      abis:
-        - name: RibbonThetaVault
-          file: ./abis/RibbonThetaVault.json
-        - name: Otoken
-          file: ./abis/Otoken.json
-      eventHandlers:
-        - event: OpenShort(indexed address,uint256,address)
-          handler: handleOpenShort
-        - event: CloseShort(indexed address,uint256,address)
-          handler: handleCloseShort
-        - event: Deposit(indexed address,uint256,uint16)
-          handler: handleDeposit
-        - event: Withdraw(address,uint256,uint256)
-          handler: handleWithdraw
-        - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleTransfer
-        - event: CapSet(uint256,uint256,address)
-          handler: handleCapSet
-        - event: InitiateGnosisAuction(address,address,uint256,address)
-          handler: handleInitiateGnosisAuction
-  - kind: ethereum/contract
-    name: RibbonETHPutVault
-    network: kovan
-    source:
-      address: "0xc8B86C2dE51F124D99D783A11Be666E7c1Be2387"
-      abi: RibbonThetaVault
-      startBlock: 26920346
+      startBlock: 26766252
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -119,7 +82,7 @@ dataSources:
     source:
       address: "0x3D1D40101E185E1fE3aedCF05FE2F5BA0Af1f25D"
       abi: GnosisAuction
-      startBlock: 26920346
+      startBlock: 26704479
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
