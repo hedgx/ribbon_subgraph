@@ -45,127 +45,127 @@ function newVault(vaultAddress: string): Vault {
   return vault;
 }
 
-// export function handleOpenShort(event: OpenShort): void {
-//   let optionAddress = event.params.options;
+export function handleOpenShort(event: OpenShort): void {
+  let optionAddress = event.params.options;
 
-//   let shortPosition = new VaultShortPosition(optionAddress.toHexString());
+  let shortPosition = new VaultShortPosition(optionAddress.toHexString());
 
-//   let otoken = Otoken.bind(optionAddress);
-//   shortPosition.expiry = otoken.expiryTimestamp();
-//   let strikePrice = otoken.strikePrice();
-//   let isPut = otoken.isPut();
-//   shortPosition.strikePrice = strikePrice;
+  let otoken = Otoken.bind(optionAddress);
+  shortPosition.expiry = otoken.expiryTimestamp();
+  let strikePrice = otoken.strikePrice();
+  let isPut = otoken.isPut();
+  shortPosition.strikePrice = strikePrice;
 
-//   let collateral = Otoken.bind(otoken.collateralAsset());
-//   let collateralDecimals = collateral.decimals() as u8;
+  let collateral = Otoken.bind(otoken.collateralAsset());
+  let collateralDecimals = collateral.decimals() as u8;
 
-//   let vaultAddress = event.address.toHexString();
-//   shortPosition.vault = vaultAddress;
-//   shortPosition.option = optionAddress;
-//   shortPosition.depositAmount = event.params.depositAmount;
-//   shortPosition.mintAmount = getOtokenMintAmount(
-//     event.params.depositAmount,
-//     strikePrice,
-//     collateralDecimals,
-//     isPut
-//   );
-//   shortPosition.initiatedBy = event.params.manager;
-//   shortPosition.openedAt = event.block.timestamp;
-//   shortPosition.openTxhash = event.transaction.hash;
+  let vaultAddress = event.address.toHexString();
+  shortPosition.vault = vaultAddress;
+  shortPosition.option = optionAddress;
+  shortPosition.depositAmount = event.params.depositAmount;
+  shortPosition.mintAmount = getOtokenMintAmount(
+    event.params.depositAmount,
+    strikePrice,
+    collateralDecimals,
+    isPut
+  );
+  shortPosition.initiatedBy = event.params.manager;
+  shortPosition.openedAt = event.block.timestamp;
+  shortPosition.openTxhash = event.transaction.hash;
 
-//   shortPosition.save();
-// }
+  shortPosition.save();
+}
 
-// export function handleCloseShort(event: CloseShort): void {
-//   let vaultAddress = event.address.toHexString();
+export function handleCloseShort(event: CloseShort): void {
+  let vaultAddress = event.address.toHexString();
 
-//   let shortPosition = VaultShortPosition.load(
-//     event.params.options.toHexString()
-//   );
-//   if (shortPosition != null) {
-//     let vault = Vault.load(vaultAddress);
-//     if (vault == null) {
-//       vault = newVault(vaultAddress);
-//       vault.save();
-//     }
+  let shortPosition = VaultShortPosition.load(
+    event.params.options.toHexString()
+  );
+  if (shortPosition != null) {
+    let vault = Vault.load(vaultAddress);
+    if (vault == null) {
+      vault = newVault(vaultAddress);
+      vault.save();
+    }
 
-//     let loss = shortPosition.depositAmount - event.params.withdrawAmount;
-//     shortPosition.loss = loss;
-//     shortPosition.withdrawAmount = event.params.withdrawAmount;
-//     shortPosition.isExercised = loss > BigInt.fromI32(0);
-//     shortPosition.closedAt = event.block.timestamp;
-//     shortPosition.closeTxhash = event.transaction.hash;
-//     shortPosition.save();
+    let loss = shortPosition.depositAmount - event.params.withdrawAmount;
+    shortPosition.loss = loss;
+    shortPosition.withdrawAmount = event.params.withdrawAmount;
+    shortPosition.isExercised = loss > BigInt.fromI32(0);
+    shortPosition.closedAt = event.block.timestamp;
+    shortPosition.closeTxhash = event.transaction.hash;
+    shortPosition.save();
 
-//     refreshAllAccountBalances(
-//       Address.fromString(vaultAddress),
-//       event.block.timestamp.toI32()
-//     );
-//   }
-// }
+    refreshAllAccountBalances(
+      Address.fromString(vaultAddress),
+      event.block.timestamp.toI32()
+    );
+  }
+}
 
 // // Used for mapping of AuctionCleared to RibbonVault
-// export function handleInitiateGnosisAuction(
-//   event: InitiateGnosisAuction
-// ): void {
-//   let auctionID = event.params.auctionCounter;
-//   let optionToken = event.params.auctioningToken;
+export function handleInitiateGnosisAuction(
+  event: InitiateGnosisAuction
+): void {
+  let auctionID = event.params.auctionCounter;
+  let optionToken = event.params.auctioningToken;
 
-//   let auction = new GnosisAuction(auctionID.toHexString());
-//   auction.optionToken = optionToken;
-//   auction.save();
-// }
+  let auction = new GnosisAuction(auctionID.toHexString());
+  auction.optionToken = optionToken;
+  auction.save();
+}
 
-// export function handleAuctionCleared(event: AuctionCleared): void {
-//   let auctionID = event.params.auctionId;
-//   let auction = GnosisAuction.load(auctionID.toHexString());
-//   if (auction == null) {
-//     return;
-//   }
+export function handleAuctionCleared(event: AuctionCleared): void {
+  let auctionID = event.params.auctionId;
+  let auction = GnosisAuction.load(auctionID.toHexString());
+  if (auction == null) {
+    return;
+  }
 
-//   let optionToken = auction.optionToken;
-//   let shortPosition = VaultShortPosition.load(optionToken.toHexString());
-//   if (shortPosition == null) {
-//     return;
-//   }
+  let optionToken = auction.optionToken;
+  let shortPosition = VaultShortPosition.load(optionToken.toHexString());
+  if (shortPosition == null) {
+    return;
+  }
 
-//   let vault = Vault.load(shortPosition.vault);
-//   if (vault == null) {
-//     return;
-//   }
+  let vault = Vault.load(shortPosition.vault);
+  if (vault == null) {
+    return;
+  }
 
-//   let tradeID =
-//     optionToken.toHexString() +
-//     "-" +
-//     event.transaction.hash.toHexString() +
-//     "-" +
-//     event.transactionLogIndex.toString();
+  let tradeID =
+    optionToken.toHexString() +
+    "-" +
+    event.transaction.hash.toHexString() +
+    "-" +
+    event.transactionLogIndex.toString();
 
-//   let optionsSold = event.params.soldAuctioningTokens;
-//   let totalPremium = event.params.soldBiddingTokens;
+  let optionsSold = event.params.soldAuctioningTokens;
+  let totalPremium = event.params.soldBiddingTokens;
 
-//   let optionTrade = new VaultOptionTrade(tradeID);
-//   optionTrade.vault = shortPosition.vault;
+  let optionTrade = new VaultOptionTrade(tradeID);
+  optionTrade.vault = shortPosition.vault;
 
-//   optionTrade.sellAmount = optionsSold;
-//   optionTrade.premium = totalPremium;
+  optionTrade.sellAmount = optionsSold;
+  optionTrade.premium = totalPremium;
 
-//   optionTrade.vaultShortPosition = optionToken.toHexString();
-//   optionTrade.timestamp = event.block.timestamp;
-//   optionTrade.txhash = event.transaction.hash;
-//   optionTrade.save();
+  optionTrade.vaultShortPosition = optionToken.toHexString();
+  optionTrade.timestamp = event.block.timestamp;
+  optionTrade.txhash = event.transaction.hash;
+  optionTrade.save();
 
-//   shortPosition.premiumEarned = shortPosition.premiumEarned.plus(totalPremium);
-//   shortPosition.save();
+  shortPosition.premiumEarned = shortPosition.premiumEarned.plus(totalPremium);
+  shortPosition.save();
 
-//   vault.totalPremiumEarned = vault.totalPremiumEarned.plus(totalPremium);
-//   vault.save();
+  vault.totalPremiumEarned = vault.totalPremiumEarned.plus(totalPremium);
+  vault.save();
 
-//   refreshAllAccountBalances(
-//     Address.fromString(shortPosition.vault),
-//     event.block.timestamp.toI32()
-//   );
-// }
+  refreshAllAccountBalances(
+    Address.fromString(shortPosition.vault),
+    event.block.timestamp.toI32()
+  );
+}
 
 export function handleDeposit(event: Deposit): void {
   let vaultAddress = event.address.toHexString();
