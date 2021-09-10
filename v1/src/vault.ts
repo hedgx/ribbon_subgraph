@@ -153,6 +153,7 @@ export function handleDeposit(event: Deposit): void {
   }
 
   let vaultAccount = createVaultAccount(event.address, event.params.account);
+  // totalDeposits disregard migration transactions
   vaultAccount.totalDeposits = vaultAccount.totalDeposits + event.params.amount;
   vaultAccount.save();
 
