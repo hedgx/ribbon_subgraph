@@ -5,7 +5,8 @@ import {
   Deposit,
   Withdraw,
   Transfer,
-  InitiateGnosisAuction
+  InitiateGnosisAuction,
+  InitiateWithdraw
 } from "../generated/RibbonETHCoveredCall/RibbonThetaVault";
 import {
   Vault,
@@ -196,6 +197,46 @@ export function handleDeposit(event: Deposit): void {
     event.block.timestamp,
     event.params.amount,
     event.params.amount
+  );
+
+  triggerBalanceUpdate(
+    event.address,
+    event.params.account,
+    event.block.timestamp.toI32(),
+    false,
+    false
+  );
+}
+
+export function handleInitiateWithdraw(event: InitiateWithdraw): void {
+  let vaultAddress = event.address.toHexString();
+  let vault = Vault.load(vaultAddress);
+
+  let txid =
+    vaultAddress +
+    "-" +
+    event.transaction.hash.toHexString() +
+    "-" +
+    event.transactionLogIndex.toString();
+
+  let vaultContract = RibbonThetaVault.bind(event.address);
+
+  let decimals = vault.underlyingDecimals;
+  let assetAmount = sharesToAssets(
+    event.params.shares,
+    getPricePerShare(vaultContract, decimals),
+    decimals
+  );
+
+  newTransaction(
+    txid,
+    "initiateWithdraw",
+    vaultAddress,
+    event.params.account,
+    event.transaction.hash,
+    event.block.timestamp,
+    event.params.shares,
+    assetAmount
   );
 
   triggerBalanceUpdate(

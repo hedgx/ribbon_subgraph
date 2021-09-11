@@ -29,6 +29,8 @@ dataSources:
           handler: handleOpenShort
         - event: Deposit(indexed address,uint256,uint256)
           handler: handleDeposit
+        - event: InitiateWithdraw(address,uint256,uint256)
+          handler: handleInitiateWithdraw
         - event: Withdraw(address,uint256,uint256)
           handler: handleWithdraw
         - event: Transfer(indexed address,indexed address,uint256)

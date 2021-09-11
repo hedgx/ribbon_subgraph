@@ -1,4 +1,4 @@
-import { BigInt } from "@graphprotocol/graph-ts";
+import { Address, BigInt } from "@graphprotocol/graph-ts";
 import { RibbonThetaVault } from "../generated/RibbonETHCoveredCall/RibbonThetaVault";
 
 let WAD = BigInt.fromString("1000000000000000000");
@@ -50,4 +50,21 @@ export function sharesToAssets(
   let decimalsU8: u8 = u8(decimals);
   let singleShare = BigInt.fromI32(10).pow(decimalsU8);
   return (shareAmount * assetPerShare) / singleShare;
+}
+
+export function getTotalPending(
+  vault: RibbonThetaVault,
+  account: Address
+): BigInt {
+  let vaultState = vault.vaultState();
+  let currentRound = vaultState.value0;
+
+  let depositReceipt = vault.depositReceipts(account);
+  let receiptRound = depositReceipt.value0;
+  let depositAmount = depositReceipt.value1;
+
+  if (receiptRound <= currentRound) {
+    return depositAmount;
+  }
+  return BigInt.fromI32(0);
 }

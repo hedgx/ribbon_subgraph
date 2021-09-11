@@ -69,6 +69,7 @@ type VaultAccount @entity {
   totalDeposits: BigInt! # Account's total deposits into the vault (Withdrawal as accounted)
   totalBalance: BigInt! # To track the current balance, so we can caluclate the net profit/loss
   shares: BigInt!
+  totalPending: BigInt!
   totalStakedShares: BigInt!
   totalStakedBalance: BigInt!
 }

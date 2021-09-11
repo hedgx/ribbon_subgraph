@@ -583,15 +583,6 @@ export class VaultTransaction extends Entity {
   set underlyingAmount(value: BigInt) {
     this.set("underlyingAmount", Value.fromBigInt(value));
   }
-
-  get fee(): BigInt {
-    let value = this.get("fee");
-    return value.toBigInt();
-  }
-
-  set fee(value: BigInt) {
-    this.set("fee", Value.fromBigInt(value));
-  }
 }
 
 export class VaultAccount extends Entity {
@@ -685,6 +676,15 @@ export class VaultAccount extends Entity {
 
   set shares(value: BigInt) {
     this.set("shares", Value.fromBigInt(value));
+  }
+
+  get totalPending(): BigInt {
+    let value = this.get("totalPending");
+    return value.toBigInt();
+  }
+
+  set totalPending(value: BigInt) {
+    this.set("totalPending", Value.fromBigInt(value));
   }
 
   get totalStakedShares(): BigInt {
