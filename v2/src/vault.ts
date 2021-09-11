@@ -38,6 +38,7 @@ function newVault(vaultAddress: string): Vault {
   vault.depositors = [];
   vault.totalPremiumEarned = BigInt.fromI32(0);
   vault.cap = vaultContract.cap();
+  vault.round = 1;
   vault.totalBalance = vaultContract.totalBalance();
   vault.underlyingAsset = assetAddress;
   vault.underlyingName = asset.name();
@@ -87,8 +88,9 @@ export function handleCloseShort(event: CloseShort): void {
     let vault = Vault.load(vaultAddress);
     if (vault == null) {
       vault = newVault(vaultAddress);
-      vault.save();
     }
+    vault.round = vault.round + 1;
+    vault.save();
 
     let loss = shortPosition.depositAmount - event.params.withdrawAmount;
     shortPosition.loss = loss;
@@ -179,6 +181,7 @@ export function handleDeposit(event: Deposit): void {
 
   let vaultAccount = createVaultAccount(event.address, event.params.account);
   vaultAccount.totalDeposits = vaultAccount.totalDeposits + event.params.amount;
+  vaultAccount.depositInRound = vault.round;
   vaultAccount.save();
 
   let txid =
@@ -211,6 +214,8 @@ export function handleDeposit(event: Deposit): void {
 export function handleInitiateWithdraw(event: InitiateWithdraw): void {
   let vaultAddress = event.address.toHexString();
   let vault = Vault.load(vaultAddress);
+  let vaultAccount = createVaultAccount(event.address, event.params.account);
+  vaultAccount.save();
 
   let txid =
     vaultAddress +
@@ -259,6 +264,8 @@ export function handleWithdraw(event: Withdraw): void {
 
   let vaultAccount = createVaultAccount(event.address, event.params.account);
   vaultAccount.totalDeposits = vaultAccount.totalDeposits - event.params.amount;
+  vaultAccount.totalScheduledWithdrawal =
+    vaultAccount.totalScheduledWithdrawal - event.params.shares;
   vaultAccount.save();
 
   let txid =

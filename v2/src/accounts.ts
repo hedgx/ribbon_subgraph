@@ -7,7 +7,11 @@ import {
   Vault,
   VaultAccount
 } from "../generated/schema";
-import { getPricePerShare, getTotalPending, sharesToAssets } from "./utils";
+import {
+  getPricePerShare,
+  getTotalPendingDeposit,
+  sharesToAssets
+} from "./utils";
 
 export function refreshAllAccountBalances(
   vaultAddress: Address,
@@ -79,6 +83,7 @@ export function _triggerBalanceUpdate(
   decimals: number
 ): void {
   let vaultID = vaultAddress.toHexString();
+  let vault = Vault.load(vaultID);
   let vaultContract = RibbonThetaVault.bind(vaultAddress);
   let vaultAccount = VaultAccount.load(
     vaultAddress.toHexString() + "-" + accountAddress.toHexString()
@@ -102,7 +107,9 @@ export function _triggerBalanceUpdate(
   let totalShares: BigInt;
 
   // User's unprocessed deposited amount in depositReceipt
-  let userTotalPending: BigInt;
+  let totalPendingDeposit: BigInt;
+
+  let scheduledWithdrawalShares: BigInt;
 
   /**
    * If isRefresh, we proceed with getting new share amount from contract
@@ -112,11 +119,16 @@ export function _triggerBalanceUpdate(
     let shares = vaultContract.shares(accountAddress);
     let withdrawal = vaultContract.withdrawals(accountAddress);
 
-    userTotalPending = getTotalPending(vaultContract, accountAddress);
-    totalShares = shares + withdrawal.value1;
+    totalPendingDeposit = getTotalPendingDeposit(vaultContract, accountAddress);
+    scheduledWithdrawalShares = withdrawal.value1;
+    totalShares = shares + scheduledWithdrawalShares;
   } else {
     totalShares = vaultAccount.shares;
-    userTotalPending = vaultAccount.totalPending;
+    let depositIsProcessed = vault.round > vaultAccount.depositInRound;
+    totalPendingDeposit = depositIsProcessed
+      ? BigInt.fromI32(0)
+      : vaultAccount.totalPendingDeposit;
+    scheduledWithdrawalShares = vaultAccount.totalScheduledWithdrawal;
   }
 
   /**
@@ -128,7 +140,7 @@ export function _triggerBalanceUpdate(
     assetPerShare,
     decimals
   );
-  let balance = accountBalance + stakeBalance + userTotalPending;
+  let balance = accountBalance + stakeBalance + totalPendingDeposit;
 
   let update = new BalanceUpdate(updateID);
   update.vault = vaultID;
@@ -166,7 +178,8 @@ export function _triggerBalanceUpdate(
   vaultAccount.totalStakedBalance = stakeBalance;
   vaultAccount.totalBalance = balance;
   vaultAccount.shares = totalShares;
-  vaultAccount.totalPending = userTotalPending;
+  vaultAccount.totalPendingDeposit = totalPendingDeposit;
+  vaultAccount.totalScheduledWithdrawal = scheduledWithdrawalShares;
   vaultAccount.save();
 }
 
@@ -191,7 +204,9 @@ export function createVaultAccount(
     vaultAccount.vault = vaultAddress.toHexString();
     vaultAccount.account = accountAddress;
     vaultAccount.shares = BigInt.fromI32(0);
-    vaultAccount.totalPending = BigInt.fromI32(0);
+    vaultAccount.totalPendingDeposit = BigInt.fromI32(0);
+    vaultAccount.totalScheduledWithdrawal = BigInt.fromI32(0);
+    vaultAccount.depositInRound = 0;
     vaultAccount.totalDeposits = BigInt.fromI32(0);
     vaultAccount.totalBalance = BigInt.fromI32(0);
     vaultAccount.totalYieldEarned = BigInt.fromI32(0);

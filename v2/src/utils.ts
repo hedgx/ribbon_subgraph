@@ -52,7 +52,7 @@ export function sharesToAssets(
   return (shareAmount * assetPerShare) / singleShare;
 }
 
-export function getTotalPending(
+export function getTotalPendingDeposit(
   vault: RibbonThetaVault,
   account: Address
 ): BigInt {

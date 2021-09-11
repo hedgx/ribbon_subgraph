@@ -57,6 +57,8 @@ dataSources:
         - VaultAccount
         - BalanceUpdate
       abis:
+        - name: RibbonThetaVault
+          file: ./abis/RibbonThetaVault.json
         - name: GnosisAuction
           file: ./abis/GnosisEasyAuction.json
       eventHandlers:

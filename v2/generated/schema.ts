@@ -149,6 +149,15 @@ export class Vault extends Entity {
   set cap(value: BigInt) {
     this.set("cap", Value.fromBigInt(value));
   }
+
+  get round(): i32 {
+    let value = this.get("round");
+    return value.toI32();
+  }
+
+  set round(value: i32) {
+    this.set("round", Value.fromI32(value));
+  }
 }
 
 export class VaultShortPosition extends Entity {
@@ -669,6 +678,15 @@ export class VaultAccount extends Entity {
     this.set("totalBalance", Value.fromBigInt(value));
   }
 
+  get totalScheduledWithdrawal(): BigInt {
+    let value = this.get("totalScheduledWithdrawal");
+    return value.toBigInt();
+  }
+
+  set totalScheduledWithdrawal(value: BigInt) {
+    this.set("totalScheduledWithdrawal", Value.fromBigInt(value));
+  }
+
   get shares(): BigInt {
     let value = this.get("shares");
     return value.toBigInt();
@@ -678,13 +696,13 @@ export class VaultAccount extends Entity {
     this.set("shares", Value.fromBigInt(value));
   }
 
-  get totalPending(): BigInt {
-    let value = this.get("totalPending");
+  get totalPendingDeposit(): BigInt {
+    let value = this.get("totalPendingDeposit");
     return value.toBigInt();
   }
 
-  set totalPending(value: BigInt) {
-    this.set("totalPending", Value.fromBigInt(value));
+  set totalPendingDeposit(value: BigInt) {
+    this.set("totalPendingDeposit", Value.fromBigInt(value));
   }
 
   get totalStakedShares(): BigInt {
@@ -703,6 +721,15 @@ export class VaultAccount extends Entity {
 
   set totalStakedBalance(value: BigInt) {
     this.set("totalStakedBalance", Value.fromBigInt(value));
+  }
+
+  get depositInRound(): i32 {
+    let value = this.get("depositInRound");
+    return value.toI32();
+  }
+
+  set depositInRound(value: i32) {
+    this.set("depositInRound", Value.fromI32(value));
   }
 }
 

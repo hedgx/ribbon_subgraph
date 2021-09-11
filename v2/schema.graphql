@@ -12,6 +12,7 @@ type Vault @entity {
   vaultAccounts: [VaultAccount!]! @derivedFrom(field: "vault")
   totalBalance: BigInt!
   cap: BigInt!
+  round: Int!
 }
 
 type VaultShortPosition @entity {
@@ -61,17 +62,40 @@ type VaultTransaction @entity {
 }
 
 type VaultAccount @entity {
-  id: ID! # vaultAddress-accountAddress
+  "vaultAddress-accountAddress"
+  id: ID!
   vault: Vault!
   account: Bytes!
-  updateCounter: Int! # used internally to track BalanceUpdates
-  totalYieldEarned: BigInt! # Account's lifetime yield earned from the vault
-  totalDeposits: BigInt! # Account's total deposits into the vault (Withdrawal as accounted)
-  totalBalance: BigInt! # To track the current balance, so we can caluclate the net profit/loss
+
+  "used internally to track BalanceUpdates"
+  updateCounter: Int!
+
+  "Account's lifetime yield earned from the vault"
+  totalYieldEarned: BigInt!
+
+  "Account's total deposits into the vault (Withdrawal as accounted)"
+  totalDeposits: BigInt!
+
+  "To track the current balance, so we can caluclate the net profit/loss"
+  totalBalance: BigInt!
+
+  "To track scheduled withdrawal amount (in shares)"
+  totalScheduledWithdrawal: BigInt!
+
+  "To track the total number of shares the user has, including scheduled withdrawal"
   shares: BigInt!
-  totalPending: BigInt!
+
+  "To track the pending deposit amount"
+  totalPendingDeposit: BigInt!
+
+  "Shares staked in a mining pool"
   totalStakedShares: BigInt!
+
+  "Asset amount staked in a mining pool"
   totalStakedBalance: BigInt!
+
+  "Tracks the round number for the user's deposit receipt"
+  depositInRound: Int!
 }
 
 type BalanceUpdate @entity {
