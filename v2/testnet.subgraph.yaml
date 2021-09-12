@@ -72,6 +72,8 @@ dataSources:
           handler: handleInitiateWithdraw
         - event: Withdraw(address,uint256,uint256)
           handler: handleWithdraw
+        - event: InstantWithdraw(indexed address,uint256,uint256)
+          handler: handleInstantWithdraw
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
         - event: InitiateGnosisAuction(address,address,uint256,address)

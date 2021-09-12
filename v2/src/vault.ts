@@ -6,14 +6,16 @@ import {
   Withdraw,
   Transfer,
   InitiateGnosisAuction,
-  InitiateWithdraw
+  InitiateWithdraw,
+  InstantWithdraw
 } from "../generated/RibbonETHCoveredCall/RibbonThetaVault";
 import {
   Vault,
   VaultShortPosition,
   GnosisAuction,
   VaultOptionTrade,
-  VaultTransaction
+  VaultTransaction,
+  VaultAccount
 } from "../generated/schema";
 import { RibbonThetaVault } from "../generated/RibbonETHCoveredCall/RibbonThetaVault";
 import { Otoken } from "../generated/RibbonETHCoveredCall/Otoken";
@@ -264,8 +266,6 @@ export function handleWithdraw(event: Withdraw): void {
 
   let vaultAccount = createVaultAccount(event.address, event.params.account);
   vaultAccount.totalDeposits = vaultAccount.totalDeposits - event.params.amount;
-  vaultAccount.totalScheduledWithdrawal =
-    vaultAccount.totalScheduledWithdrawal - event.params.shares;
   vaultAccount.save();
 
   let txid =
@@ -278,6 +278,43 @@ export function handleWithdraw(event: Withdraw): void {
   newTransaction(
     txid,
     "withdraw",
+    vaultAddress,
+    event.params.account,
+    event.transaction.hash,
+    event.block.timestamp,
+    event.params.amount,
+    event.params.amount
+  );
+
+  triggerBalanceUpdate(
+    event.address,
+    event.params.account,
+    event.block.timestamp.toI32(),
+    false,
+    true
+  );
+}
+
+export function handleInstantWithdraw(event: InstantWithdraw): void {
+  // The vault & vaultAccount must already exist before an instantwithdraw is triggered
+  // This is because we create them on deposit
+  let vaultAddress = event.address.toHexString();
+  let vault = Vault.load(vaultAddress);
+
+  let txid =
+    vaultAddress +
+    "-" +
+    event.transaction.hash.toHexString() +
+    "-" +
+    event.transactionLogIndex.toString();
+
+  let vaultAccountID = vaultAddress + "-" + event.params.account.toHexString();
+  let vaultAccount = VaultAccount.load(vaultAccountID);
+  vaultAccount.totalDeposits = vaultAccount.totalDeposits - event.params.amount;
+
+  newTransaction(
+    txid,
+    "instantWithdraw",
     vaultAddress,
     event.params.account,
     event.transaction.hash,
