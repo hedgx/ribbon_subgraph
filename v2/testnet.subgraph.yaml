@@ -27,6 +27,8 @@ dataSources:
       eventHandlers:
         - event: OpenShort(indexed address,uint256,address)
           handler: handleOpenShort
+        - event: CloseShort(indexed address,uint256,address)
+          handler: handleCloseShort
         - event: Deposit(indexed address,uint256,uint256)
           handler: handleDeposit
         - event: InitiateWithdraw(address,uint256,uint256)
@@ -60,8 +62,10 @@ dataSources:
         - name: Otoken
           file: ./abis/Otoken.json
       eventHandlers:
-        - event: OpenShort(indexed address,uint256,address)
+         event: OpenShort(indexed address,uint256,address)
           handler: handleOpenShort
+        - event: CloseShort(indexed address,uint256,address)
+          handler: handleCloseShort
         - event: Deposit(indexed address,uint256,uint256)
           handler: handleDeposit
         - event: InitiateWithdraw(address,uint256,uint256)
