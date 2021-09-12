@@ -52,6 +52,10 @@ function newVault(vaultAddress: string): Vault {
 export function handleOpenShort(event: OpenShort): void {
   let optionAddress = event.params.options;
 
+  let vault = Vault.load(event.address.toHexString());
+  vault.round = vault.round + 1;
+  vault.save();
+
   let shortPosition = new VaultShortPosition(optionAddress.toHexString());
 
   let otoken = Otoken.bind(optionAddress);
@@ -91,7 +95,6 @@ export function handleCloseShort(event: CloseShort): void {
     if (vault == null) {
       vault = newVault(vaultAddress);
     }
-    vault.round = vault.round + 1;
     vault.save();
 
     let loss = shortPosition.depositAmount - event.params.withdrawAmount;
@@ -299,7 +302,6 @@ export function handleInstantWithdraw(event: InstantWithdraw): void {
   // The vault & vaultAccount must already exist before an instantwithdraw is triggered
   // This is because we create them on deposit
   let vaultAddress = event.address.toHexString();
-  let vault = Vault.load(vaultAddress);
 
   let txid =
     vaultAddress +
@@ -311,6 +313,7 @@ export function handleInstantWithdraw(event: InstantWithdraw): void {
   let vaultAccountID = vaultAddress + "-" + event.params.account.toHexString();
   let vaultAccount = VaultAccount.load(vaultAccountID);
   vaultAccount.totalDeposits = vaultAccount.totalDeposits - event.params.amount;
+  vaultAccount.save();
 
   newTransaction(
     txid,
