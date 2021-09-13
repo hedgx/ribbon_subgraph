@@ -19,6 +19,7 @@ dataSources:
         - VaultShortPosition
         - VaultAccount
         - BalanceUpdate
+        - VaultPerformanceUpdate
       abis:
         - name: RibbonThetaVault
           file: ./abis/RibbonThetaVault.json
@@ -56,6 +57,7 @@ dataSources:
         - VaultShortPosition
         - VaultAccount
         - BalanceUpdate
+        - VaultPerformanceUpdate
       abis:
         - name: RibbonThetaVault
           file: ./abis/RibbonThetaVault.json
@@ -97,6 +99,7 @@ dataSources:
         - VaultTransaction
         - VaultAccount
         - BalanceUpdate
+        - VaultPerformanceUpdate
       abis:
         - name: RibbonThetaVault
           file: ./abis/RibbonThetaVault.json

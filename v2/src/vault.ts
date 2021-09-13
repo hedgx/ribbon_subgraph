@@ -27,6 +27,7 @@ import {
   triggerBalanceUpdate
 } from "./accounts";
 import { getOtokenMintAmount, getPricePerShare, sharesToAssets } from "./utils";
+import { updateVaultPerformance } from "./vaultPerformance";
 
 function newVault(vaultAddress: string): Vault {
   let vault = new Vault(vaultAddress);
@@ -46,6 +47,7 @@ function newVault(vaultAddress: string): Vault {
   vault.underlyingName = asset.name();
   vault.underlyingSymbol = asset.symbol();
   vault.underlyingDecimals = asset.decimals();
+  vault.performanceUpdateCounter = 0;
   return vault;
 }
 
@@ -97,6 +99,8 @@ export function handleCloseShort(event: CloseShort): void {
     }
     vault.save();
 
+    updateVaultPerformance(vaultAddress, event.block.timestamp.toI32());
+
     let loss = shortPosition.depositAmount - event.params.withdrawAmount;
     shortPosition.loss = loss;
     shortPosition.withdrawAmount = event.params.withdrawAmount;
@@ -141,6 +145,8 @@ export function handleAuctionCleared(event: AuctionCleared): void {
   if (vault == null) {
     return;
   }
+
+  updateVaultPerformance(shortPosition.vault, event.block.timestamp.toI32());
 
   let tradeID =
     optionToken.toHexString() +

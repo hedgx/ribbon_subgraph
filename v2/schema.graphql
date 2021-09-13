@@ -13,6 +13,9 @@ type Vault @entity {
   totalBalance: BigInt!
   cap: BigInt!
   round: Int!
+
+  "Internally used to track performance updates"
+  performanceUpdateCounter: Int!
 }
 
 type VaultShortPosition @entity {
@@ -107,6 +110,13 @@ type BalanceUpdate @entity {
   yieldEarned: BigInt! # Yield earned from a trade at a point in time
   isWithdraw: Boolean!
   stakedBalance: BigInt!
+}
+
+type VaultPerformanceUpdate @entity {
+  id: ID!
+  vault: Vault!
+  pricePerShare: BigInt!
+  timestamp: Int!
 }
 
 type ERC20Token @entity {
