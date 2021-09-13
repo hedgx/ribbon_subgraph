@@ -18,7 +18,7 @@ export function updateVaultPerformance(
     vault.id + "-" + prevCounter.toString()
   );
   let newPricePerShare = vaultContract.pricePerShare();
-  if (prevUpdate.pricePerShare == newPricePerShare) {
+  if (prevUpdate != null && prevUpdate.pricePerShare == newPricePerShare) {
     return;
   }
 
