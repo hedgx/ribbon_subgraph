@@ -1,0 +1,27 @@
+specVersion: 0.0.2
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: GnosisEasyAuction
+    network: mainnet
+    source:
+      address: "0x0b7fFc1f4AD541A4Ed16b40D8c37f0929158D101"
+      abi: EasyAuction
+      startBlock: 13197702
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - Auction
+        - AuctionSellOrder
+      abis:
+        - name: EasyAuction
+          file: ./abis/EasyAuction.json
+      eventHandlers:
+        - event: NewAuction(indexed uint256,indexed address,indexed address,uint256,uint256,uint64,uint96,uint96,uint256,uint256,address,bytes)
+          handler: handleNewAuction
+        - event: NewSellOrder(indexed uint256,indexed uint64,uint96,uint96)
+          handler: handleNewSellOrder
+      file: ./src/auction.ts

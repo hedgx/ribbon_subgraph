@@ -1,0 +1,23 @@
+type Auction @entity {
+  id: ID! # Auction ID
+  auctionToken: Bytes!
+  biddingToken: Bytes!
+  orderCancellationEndDate: BigInt!
+  auctionEndDate: BigInt!
+  auctionedSellAmount: BigInt!
+
+  vault: String!
+  orderCounter: Int! # Used to track number of bid for auction
+
+  sellOrders: [AuctionSellOrder!]! @derivedFrom(field: "auction")
+}
+
+type AuctionSellOrder @entity {
+  id: ID! # auctionId-counter
+  auction: Auction!
+  buyAmount: BigInt!
+  sellAmount: BigInt!
+  bidderAddress: Bytes!
+  
+  active: Boolean! # Default to true. When user cancel order and does not place preceding order, it will be false
+}
