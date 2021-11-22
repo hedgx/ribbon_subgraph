@@ -24,4 +24,6 @@ dataSources:
           handler: handleNewAuction
         - event: NewSellOrder(indexed uint256,indexed uint64,uint96,uint96)
           handler: handleNewSellOrder
+        - event: CancellationSellOrder(indexed uint256,indexed uint64,uint96,uint96)
+          handler: handleCancellationSellOrder
       file: ./src/auction.ts

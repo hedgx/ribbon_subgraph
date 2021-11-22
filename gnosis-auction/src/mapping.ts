@@ -92,11 +92,5 @@
 // eventHandlers:
 //   - event: AuctionCleared(indexed uint256,uint96,uint96,bytes32)
 //     handler: handleAuctionCleared
-//   - event: CancellationSellOrder(indexed uint256,indexed uint64,uint96,uint96)
-//     handler: handleCancellationSellOrder
 //   - event: ClaimedFromOrder(indexed uint256,indexed uint64,uint96,uint96)
 //     handler: handleClaimedFromOrder
-//   - event: NewAuction(indexed uint256,indexed address,indexed address,uint256,uint256,uint64,uint96,uint96,uint256,uint256,address,bytes)
-//     handler: handleNewAuction
-//   - event: NewSellOrder(indexed uint256,indexed uint64,uint96,uint96)
-//     handler: handleNewSellOrder

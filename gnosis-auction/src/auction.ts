@@ -1,5 +1,6 @@
 import { BigInt } from "@graphprotocol/graph-ts";
 import {
+  CancellationSellOrder,
   EasyAuction,
   NewAuction,
   NewSellOrder
@@ -49,14 +50,11 @@ export function handleNewSellOrder(event: NewSellOrder): void {
   auction.orderCounter = auction.orderCounter + 1;
   auction.save();
 
-  /**
-   * Create sell order
-   */
   let sellOrderId =
     auction.id + "-" + BigInt.fromI32(auction.orderCounter).toString();
 
   /**
-   * User first time bid
+   * Create sell order
    */
   let sellOrder = new AuctionSellOrder(sellOrderId);
   sellOrder.auction = auction.id;
@@ -66,4 +64,30 @@ export function handleNewSellOrder(event: NewSellOrder): void {
   sellOrder.active = true;
 
   sellOrder.save();
+}
+
+export function handleCancellationSellOrder(
+  event: CancellationSellOrder
+): void {
+  let auction = Auction.load(event.params.auctionId.toString());
+
+  /**
+   * We ignore sell order that is not related to Ribbon
+   */
+  if (!auction) {
+    return;
+  }
+
+  for (let i = 1; i <= auction.orderCounter; i++) {
+    let sellOrderId = auction.id + "-" + BigInt.fromI32(i).toString();
+    let sellOrder = AuctionSellOrder.load(sellOrderId);
+
+    if (
+      sellOrder.sellAmount.equals(event.params.sellAmount) &&
+      sellOrder.buyAmount.equals(event.params.buyAmount)
+    ) {
+      sellOrder.active = false;
+      sellOrder.save();
+    }
+  }
 }
