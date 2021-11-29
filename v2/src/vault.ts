@@ -50,7 +50,6 @@ function newVault(vaultAddress: string, creationTimestamp: i32): Vault {
   vault.underlyingName = asset.name();
   vault.underlyingSymbol = asset.symbol();
   vault.underlyingDecimals = asset.decimals();
-  vault.performanceUpdateCounter = 0;
   vault.performanceFeeCollected = BigInt.fromI32(0);
   vault.managementFeeCollected = BigInt.fromI32(0);
   vault.totalFeeCollected = BigInt.fromI32(0);
@@ -62,6 +61,7 @@ function newVault(vaultAddress: string, creationTimestamp: i32): Vault {
     u8(vault.underlyingDecimals)
   );
   performanceUpdate.timestamp = creationTimestamp;
+  performanceUpdate.round = 0;
   performanceUpdate.save();
 
   return vault;
