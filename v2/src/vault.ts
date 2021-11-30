@@ -29,7 +29,10 @@ import {
   triggerBalanceUpdate
 } from "./accounts";
 import { getOtokenMintAmount, getPricePerShare, sharesToAssets } from "./utils";
-import { updateVaultPerformance } from "./vaultPerformance";
+import {
+  finalizePrevRoundVaultPerformance,
+  updateVaultPerformance
+} from "./vaultPerformance";
 
 function newVault(vaultAddress: string, creationTimestamp: i32): Vault {
   let vault = new Vault(vaultAddress);
@@ -100,6 +103,14 @@ export function handleOpenShort(event: OpenShort): void {
   shortPosition.openTxhash = event.transaction.hash;
 
   shortPosition.save();
+
+  /**
+   * We finalize last round pricePerShare here
+   */
+  finalizePrevRoundVaultPerformance(
+    vaultAddress,
+    event.block.timestamp.toI32()
+  );
 }
 
 export function handleCloseShort(event: CloseShort): void {
