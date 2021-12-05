@@ -47,7 +47,7 @@ export const isExceptionForNewUpdate = (
   timestamp: number
 ): boolean => {
   if (vaultAddress == "0xe63151a0ed4e5fafdc951d877102cf0977abd365") {
-    if (timestamp == 1637928710 || 1638533214) {
+    if (timestamp == 1637928710 || timestamp == 1638533214) {
       return true;
     }
   }
