@@ -54,12 +54,28 @@ export const isExceptionForNewUpdate = (
   return false;
 };
 
+export const fallbackPricePerShareForExceptionWithTimestamp = (
+  vaultAddress: string,
+  timestamp: number
+): BigInt => {
+  if (vaultAddress == "0xe63151a0ed4e5fafdc951d877102cf0977abd365") {
+    if (
+      timestamp == 1637928710 ||
+      timestamp == 1638529598 ||
+      timestamp == 1638533214
+    ) {
+      return BigInt.fromString("1005164152810266944");
+    }
+  }
+  return BigInt.fromString("0");
+};
+
 export const isRoundExceptionForNewUpdate = (
   vaultAddress: string,
   round: number
 ): boolean => {
   if (vaultAddress == "0xe63151a0ed4e5fafdc951d877102cf0977abd365") {
-    if (round == 4) {
+    if (round == 4 || round == 5) {
       return true;
     }
   }
@@ -72,7 +88,7 @@ export const fallbackPricePerShareForException = (
   round: number
 ): BigInt => {
   if (vaultAddress == "0xe63151a0ed4e5fafdc951d877102cf0977abd365") {
-    if (round == 4) {
+    if (round == 4 || round == 5) {
       return BigInt.fromString("1005164152810266944");
     }
   }

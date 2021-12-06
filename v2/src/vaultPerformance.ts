@@ -7,6 +7,7 @@ import {
 } from "../generated/schema";
 import {
   fallbackPricePerShareForException,
+  fallbackPricePerShareForExceptionWithTimestamp,
   isExceptionForNewUpdate,
   isRoundExceptionForNewUpdate
 } from "./data/constant";
@@ -24,11 +25,10 @@ export function updateVaultPerformance(
   let newPricePerShare = vaultContract.pricePerShare();
 
   if (isExceptionForNewUpdate(vaultAddress, timestamp)) {
-    let prevRound = round - 1;
-    let prevPerformanceUpdate = VaultPerformanceUpdate.load(
-      vault.id + "-" + prevRound.toString()
+    newPricePerShare = fallbackPricePerShareForExceptionWithTimestamp(
+      vaultAddress,
+      timestamp
     );
-    newPricePerShare = prevPerformanceUpdate.pricePerShare;
   }
 
   let vaultPerformanceUpdateHistoryId = vaultPerformanceUpdateId;

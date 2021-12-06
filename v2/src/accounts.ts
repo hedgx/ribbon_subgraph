@@ -8,7 +8,10 @@ import {
   VaultAccount,
   VaultPerformanceUpdate
 } from "../generated/schema";
-import { isExceptionForNewUpdate } from "./data/constant";
+import {
+  fallbackPricePerShareForExceptionWithTimestamp,
+  isExceptionForNewUpdate
+} from "./data/constant";
 import {
   getPricePerShare,
   getTotalPendingDeposit,
@@ -20,18 +23,15 @@ export function refreshAllAccountBalances(
   timestamp: i32
 ): void {
   let vault = Vault.load(vaultAddress.toHexString());
-  let round = vault.round;
   let vaultContract = RibbonThetaVault.bind(vaultAddress);
   let decimals = vault.underlyingDecimals;
   let assetPerShare = getPricePerShare(vaultContract, decimals);
 
   if (isExceptionForNewUpdate(vaultAddress.toHexString(), timestamp)) {
-    // Default to previous performance update
-    let prevRound = round - 1;
-    let prevUpdate = VaultPerformanceUpdate.load(
-      vault.id + "-" + prevRound.toString()
+    assetPerShare = fallbackPricePerShareForExceptionWithTimestamp(
+      vaultAddress.toHexString(),
+      timestamp
     );
-    assetPerShare = prevUpdate.pricePerShare;
   }
 
   let totalBalance = vaultContract.totalBalance();
