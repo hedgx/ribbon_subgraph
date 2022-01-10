@@ -1,0 +1,1 @@
+export const ribbonKeeper = "0x55e4b3e3226444cd4de09778844453ba9fe9cd7c"

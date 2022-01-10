@@ -1,0 +1,51 @@
+type Auction @entity {
+  id: ID! # Gnosis Auction ID
+  option: Option!
+  bidding: Token!
+  minimum: BigInt!
+  size: BigInt!
+  start: BigInt!
+  end: BigInt!
+  bids: Int!
+  filled: BigInt!
+  clearing: Bytes! # Clearing Price
+  spot: Int!
+}
+
+type Account @entity {
+  id: ID!
+  address: Bytes!
+  bids: [Bid!] @derivedFrom(field: "account")
+}
+
+type Bid @entity {
+  id: ID! 
+  index: BigInt!
+  auction: Int!
+  account: Account! 
+  size: BigInt!
+  payable: BigInt!
+  live: Boolean!
+  claimed: Boolean!
+  hash: Bytes!
+}
+
+type Token @entity {
+  id: ID!
+  address: Bytes! # token contract address
+  name: String!
+  symbol: String!
+  decimals: Int!
+}
+
+type Option @entity {
+  id: ID!
+  address: Bytes! # token contract address
+  name: String!
+  symbol: String!
+  decimals: Int!
+  expiry: BigInt!
+  strike: BigInt!
+  underlying: Token!
+  put: Boolean!
+}
