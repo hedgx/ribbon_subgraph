@@ -131,6 +131,15 @@ export class Auction extends Entity {
   set spot(value: i32) {
     this.set("spot", Value.fromI32(value));
   }
+
+  get live(): boolean {
+    let value = this.get("live");
+    return value.toBoolean();
+  }
+
+  set live(value: boolean) {
+    this.set("live", Value.fromBoolean(value));
+  }
 }
 
 export class Account extends Entity {
@@ -170,6 +179,15 @@ export class Account extends Entity {
 
   set address(value: Bytes) {
     this.set("address", Value.fromBytes(value));
+  }
+
+  get userid(): string {
+    let value = this.get("userid");
+    return value.toString();
+  }
+
+  set userid(value: string) {
+    this.set("userid", Value.fromString(value));
   }
 
   get bids(): Array<string> | null {
@@ -265,31 +283,56 @@ export class Bid extends Entity {
     this.set("payable", Value.fromBigInt(value));
   }
 
-  get live(): boolean {
-    let value = this.get("live");
-    return value.toBoolean();
+  get bytes(): string {
+    let value = this.get("bytes");
+    return value.toString();
   }
 
-  set live(value: boolean) {
-    this.set("live", Value.fromBoolean(value));
+  set bytes(value: string) {
+    this.set("bytes", Value.fromString(value));
   }
 
-  get claimed(): boolean {
-    let value = this.get("claimed");
-    return value.toBoolean();
-  }
-
-  set claimed(value: boolean) {
-    this.set("claimed", Value.fromBoolean(value));
-  }
-
-  get hash(): Bytes {
-    let value = this.get("hash");
+  get createtx(): Bytes {
+    let value = this.get("createtx");
     return value.toBytes();
   }
 
-  set hash(value: Bytes) {
-    this.set("hash", Value.fromBytes(value));
+  set createtx(value: Bytes) {
+    this.set("createtx", Value.fromBytes(value));
+  }
+
+  get canceltx(): Bytes | null {
+    let value = this.get("canceltx");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set canceltx(value: Bytes | null) {
+    if (value === null) {
+      this.unset("canceltx");
+    } else {
+      this.set("canceltx", Value.fromBytes(value as Bytes));
+    }
+  }
+
+  get claimtx(): Bytes | null {
+    let value = this.get("claimtx");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set claimtx(value: Bytes | null) {
+    if (value === null) {
+      this.unset("claimtx");
+    } else {
+      this.set("claimtx", Value.fromBytes(value as Bytes));
+    }
   }
 }
 

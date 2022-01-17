@@ -11,8 +11,9 @@ import {
   Bid,
   Account,
 } from "../generated/schema";
-import { ribbonKeeper } from "./data/constant";
+import { avaxKeeper, mainnetKeeper } from "./data/constant";
 import { createOption, createToken } from "./token"
+import { encodeOrder } from "./utils";
 
 export function handleSellOrder(event: NewSellOrder): void {
   let auction = Auction.load(event.params.auctionId.toString())
@@ -24,11 +25,12 @@ export function handleSellOrder(event: NewSellOrder): void {
     + "-" + event.params.sellAmount.toString()
   )
 
-  let account = Account.load(event.params.userId.toString())
+  let account = Account.load(event.transaction.from.toHexString())
   if (!account) {
-    account = new Account(event.params.userId.toString())
+    account = new Account(event.transaction.from.toHexString())
     account.address = event.transaction.from
-    
+    account.userid = event.params.userId.toString()
+
     account.save()
   }
   
@@ -38,9 +40,12 @@ export function handleSellOrder(event: NewSellOrder): void {
     bid.account = account.id.toString()
     bid.size = event.params.buyAmount
     bid.payable = event.params.sellAmount
-    bid.live = true
-    bid.claimed = false
-    bid.hash = event.transaction.hash
+    bid.createtx = event.transaction.hash
+    bid.bytes = encodeOrder(
+      event.params.userId,
+      event.params.buyAmount,
+      event.params.sellAmount
+    )
     
     bid.save()
   }
@@ -55,7 +60,7 @@ export function handleCancellation(event: CancellationSellOrder): void {
   )
 
   if (bid) {
-    bid.live = false
+    bid.canceltx = event.transaction.hash
     bid.save()
   }
 }
@@ -69,8 +74,7 @@ export function handleClaim(event: ClaimedFromOrder): void {
   )
 
   if (bid) {
-    bid.live = false
-    bid.claimed = true
+    bid.claimtx = event.transaction.hash
     bid.save()
   }
 }
@@ -81,13 +85,14 @@ export function handleAuctionCleared(event: AuctionCleared): void {
   if (auction) {
     auction.filled = event.params.soldAuctioningTokens
     auction.clearing = event.params.clearingPriceOrder
+    auction.live = false
 
     auction.save()
   }
 }
 
 export function handleNewAuction(event: NewAuction): void {
-  if (event.transaction.from.toHexString() == ribbonKeeper) {
+  if (event.transaction.from.toHexString() == mainnetKeeper || event.transaction.from.toHexString() == avaxKeeper) {
     let auction = new Auction(event.params.auctionId.toString())
     let option = createOption(event.params._auctioningToken)
     let token = createToken(event.params._biddingToken)
@@ -102,6 +107,7 @@ export function handleNewAuction(event: NewAuction): void {
     auction.filled = BigInt.fromI32(0)
     auction.clearing = event.params.allowListData
     auction.spot = 0
+    auction.live = true
 
     auction.save()
   }

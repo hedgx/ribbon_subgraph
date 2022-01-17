@@ -8,7 +8,9 @@
     "codegen-avax": "graph codegen avax.yaml",
     "build-mainnet": "graph build mainnet.yaml",
     "build-avax": "graph build avax.yaml",
-    "deploy-mainnet": "graph deploy --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ stevenwal/gnosis-auction mainnet.yaml"
+    "deploy-mainnet": "graph deploy --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ stevenwal/gnosis-auction mainnet.yaml",
+    "deploy-avax": "graph deploy --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ stevenwal/gnosis-auction-avax avax.yaml",
+    "deploy": "yarn codegen-mainnet && yarn deploy-mainnet && yarn codegen-avax && yarn deploy-avax"
   },
   "devDependencies": {
     "@graphprotocol/graph-cli": "^0.20.1",
@@ -21,6 +23,7 @@
     "solc": "^0.8.7-fixed",
     "truffle": "^5.0.4",
     "truffle-contract": "^4.0.5",
-    "truffle-hdwallet-provider": "^1.0.4"
+    "truffle-hdwallet-provider": "^1.0.4",
+    "ethers": "5.4.0"
   }
 }

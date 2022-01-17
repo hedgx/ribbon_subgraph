@@ -10,11 +10,13 @@ type Auction @entity {
   filled: BigInt!
   clearing: Bytes! # Clearing Price
   spot: Int!
+  live: Boolean!
 }
 
 type Account @entity {
   id: ID!
   address: Bytes!
+  userid: String!
   bids: [Bid!] @derivedFrom(field: "account")
 }
 
@@ -25,9 +27,10 @@ type Bid @entity {
   account: Account! 
   size: BigInt!
   payable: BigInt!
-  live: Boolean!
-  claimed: Boolean!
-  hash: Bytes!
+  bytes: String!
+  createtx: Bytes!
+  canceltx: Bytes
+  claimtx: Bytes
 }
 
 type Token @entity {
