@@ -35,7 +35,7 @@ export function handleSellOrder(event: NewSellOrder): void {
   }
   
   if (auction) {
-    bid.index = event.transaction.index
+    bid.index = event.block.timestamp
     bid.auction = event.params.auctionId.toI32()
     bid.account = account.id.toString()
     bid.size = event.params.buyAmount
