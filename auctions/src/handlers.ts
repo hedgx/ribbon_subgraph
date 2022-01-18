@@ -11,7 +11,7 @@ import {
   Bid,
   Account,
 } from "../generated/schema";
-import { avaxKeeper, mainnetKeeper } from "./data/constant";
+import { avaxKeeper, kovanKeeper, mainnetKeeper } from "./data/constant";
 import { createOption, createToken } from "./token"
 import { encodeOrder } from "./utils";
 
@@ -92,7 +92,8 @@ export function handleAuctionCleared(event: AuctionCleared): void {
 }
 
 export function handleNewAuction(event: NewAuction): void {
-  if (event.transaction.from.toHexString() == mainnetKeeper || event.transaction.from.toHexString() == avaxKeeper) {
+  let sender = event.transaction.from.toHexString()
+  if (sender == mainnetKeeper || sender == avaxKeeper || sender == kovanKeeper) {
     let auction = new Auction(event.params.auctionId.toString())
     let option = createOption(event.params._auctioningToken)
     let token = createToken(event.params._biddingToken)
